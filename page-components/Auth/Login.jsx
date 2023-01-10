@@ -4,11 +4,14 @@ import {
   SuccessToast,
   FailedToast,
 } from "@/components/Toasts/Toast";
+import { signIn } from "next-auth/react";
+import Router from "next/router";
 import { useState } from "react";
 
 export const Login = (props) => {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("patient");
 
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccessToast, setSuccessToast] = useState(false);
@@ -47,6 +50,17 @@ export const Login = (props) => {
   const signinUser = async (e) => {
     e.preventDefault();
     showToast("init");
+
+    let options = { redirect: false, id, password, role };
+
+    const res = await signIn("credentials", options);
+    if (res?.error) {
+      return;
+    }
+
+    setTimeout(() => {
+      Router.push("/");
+    }, 1000);
   };
 
   return (
@@ -116,16 +130,31 @@ export const Login = (props) => {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
+
+            <select
+              onChange={(e) => setRole(e.target.value)}
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  block w-full p-2.5"
+            >
+              <option value="patient">Patient</option>
+              <option value="arzt">Arzt</option>
+              <option value="assistent">Assistent</option>
+              <option value="verwaltung">Verwaltung</option>
+            </select>
           </div>
 
           <div>
             <button
-              onClick={(e) => signinUser(e)}
+              onClick={
+                (e) => {
+                  signinUser(e);
+                }
+                // signinUser(e)
+              }
               className="block w-full px-4 py-2 mt-20 font-semibold text-center text-white rounded cursor-pointer bg-c-primary focus:outline-none focus:ring focus:ring-offset-2 focus:ring-rose-500 focus:ring-opacity-80"
             >
               Anmelden
             </button>
-            <div>
+            {/* <div>
               <p className="block mt-4 text-sm font-medium text-center text-textColor dark:text-textColor-dark">
                 Neu bei uns?
               </p>
@@ -135,7 +164,7 @@ export const Login = (props) => {
               >
                 Konto Erstellen
               </a>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

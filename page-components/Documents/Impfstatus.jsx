@@ -1,3 +1,4 @@
+import { DateConverter } from "@/utils/DateConverter";
 import { useState } from "react";
 
 export const VaccDropdown = ({ vac }) => {
@@ -12,7 +13,7 @@ export const VaccDropdown = ({ vac }) => {
         onClick={() => setExpand(!expand)}
       >
         <div className="w-2/3 text-gray-800 duration-300 group-hover:text-blue-300">
-          {vac.label}
+          {vac.ibezeichnung}
         </div>
         <button
           aria-label="question-expander"
@@ -51,7 +52,15 @@ export const VaccDropdown = ({ vac }) => {
           )}
         </button>
       </div>
-      {vac.status &&
+      <div className={contentClass}>
+        <div className="grid grid-cols-3">
+          <p>{vac.anzahl}.Impfung</p>
+          <p>{vac.iwirkstoff}</p>
+          <p>{DateConverter(new Date(vac.datum))}</p>
+        </div>
+      </div>
+
+      {/* {vac.status &&
         vac.status.map((doc) => (
           <div key={doc.label} className={contentClass}>
             <div className="grid grid-cols-3">
@@ -65,7 +74,7 @@ export const VaccDropdown = ({ vac }) => {
         <div className={contentClass}>
           <p>Keine Einträge</p>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

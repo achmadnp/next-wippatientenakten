@@ -1,111 +1,98 @@
-export const MedicationTable = (props) => {
+import { DateConverter } from "@/utils/DateConverter";
+
+export const MedicationTable = ({ medikationsplane, role }) => {
   return (
-    <table className="min-w-full">
-      <thead className="bg-gray-400 border-b">
-        <tr>
-          <th
-            scope="col"
-            className="px-6 py-4 font-medium text-left text-gray-900 text-md"
-          >
-            Wirkstoff
-          </th>
-          <th
-            scope="col"
-            className="px-6 py-4 font-medium text-left text-gray-900 text-md"
-          >
-            Handelsname
-          </th>
-          <th
-            scope="col"
-            className="px-6 py-4 font-medium text-left text-gray-900 text-md"
-          >
-            Stärke
-          </th>
-          <th
-            scope="col"
-            className="px-6 py-4 font-medium text-left text-gray-900 text-md"
-          >
-            Form
-          </th>
-          <th
-            scope="col"
-            className="px-6 py-4 font-medium text-left text-gray-900 text-md"
-          >
-            Morgen
-          </th>
-          <th
-            scope="col"
-            className="px-6 py-4 font-medium text-left text-gray-900 text-md"
-          >
-            Mittag
-          </th>
-          <th
-            scope="col"
-            className="px-6 py-4 font-medium text-left text-gray-900 text-md"
-          >
-            Abend
-          </th>
-          <th
-            scope="col"
-            className="px-6 py-4 font-medium text-left text-gray-900 text-md"
-          >
-            Nacht
-          </th>
-          <th
-            scope="col"
-            className="px-6 py-4 font-medium text-left text-gray-900 text-md"
-          >
-            Einheit
-          </th>
-          <th
-            scope="col"
-            className="px-6 py-4 font-medium text-left text-gray-900 text-md"
-          >
-            Hinweise
-          </th>
-          <th
-            scope="col"
-            className="px-6 py-4 font-medium text-left text-gray-900 text-md"
-          >
-            Grund
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr className="border-b">
-          <td className="px-6 py-4 font-light text-gray-900 text-md whitespace-nowrap">
-            <p>Acetylsalicylsäure</p>
-          </td>
-          <td className="px-6 py-4 font-light text-gray-900 text-md whitespace-nowrap">
-            ASS AL 100 TAH
-          </td>
-          <td className="px-6 py-4 font-light text-gray-900 text-md whitespace-nowrap">
-            100mg
-          </td>
-          <td className="px-6 py-4 font-light text-gray-900 text-md whitespace-nowrap">
-            Tabl
-          </td>
-          <td className="px-6 py-4 font-light text-gray-900 text-md whitespace-nowrap">
-            0
-          </td>
-          <td className="px-6 py-4 font-light text-gray-900 text-md whitespace-nowrap">
-            1
-          </td>
-          <td className="px-6 py-4 font-light text-gray-900 text-md whitespace-nowrap">
-            0
-          </td>
-          <td className="px-6 py-4 font-light text-gray-900 text-md whitespace-nowrap">
-            0
-          </td>
-          <td className="px-6 py-4 font-light text-gray-900 text-md whitespace-nowrap">
-            Stück
-          </td>
-          <td className="px-6 py-4 font-light text-gray-900 text-md whitespace-nowrap">
-            Blutverdünnung
-          </td>
-          <td className="px-6 py-4 font-light text-gray-900 text-md whitespace-nowrap"></td>
-        </tr>
-      </tbody>
-    </table>
+    <div className="overflow-x-auto">
+      <div className="inline-block min-w-full py-2 sm:px-1 lg:px-2">
+        <div className="overflow-hidden">
+          <table className="min-w-full">
+            <thead className="bg-gray-400 border-b">
+              <tr>
+                <th
+                  scope="col"
+                  className="px-2 py-4 font-medium text-left text-gray-900 whitespace-nowrap text-md"
+                >
+                  Wirkstoff
+                </th>
+                <th
+                  scope="col"
+                  className="px-2 py-4 font-medium text-left text-gray-900 whitespace-nowrap text-md"
+                >
+                  Medikamente
+                </th>
+                <th
+                  scope="col"
+                  className="px-2 py-4 font-medium text-left text-gray-900 whitespace-nowrap text-md"
+                >
+                  Stärke
+                </th>
+                <th
+                  scope="col"
+                  className="px-2 py-4 font-medium text-left text-gray-900 whitespace-nowrap text-md"
+                >
+                  Von
+                </th>
+                <th
+                  scope="col"
+                  className="px-2 py-4 font-medium text-left text-gray-900 whitespace-nowrap text-md"
+                >
+                  Bis
+                </th>
+                <th
+                  scope="col"
+                  className="px-2 py-4 font-medium text-left text-gray-900 whitespace-nowrap text-md"
+                >
+                  Hinweise
+                </th>
+                <th
+                  scope="col"
+                  className="px-2 py-4 font-medium text-left text-gray-900 whitespace-nowrap text-md"
+                >
+                  Grund
+                </th>
+                {role === "arzt" && (
+                  <th className="px-6 py-4 font-medium text-left text-gray-900 text-md">
+                    Aktion
+                  </th>
+                )}
+              </tr>
+            </thead>
+            <tbody>
+              {medikationsplane.map((medikationsplan, i) => (
+                <tr key={i}>
+                  <td className="px-2 py-4 font-light text-gray-900 text-md whitespace-nowrap">
+                    <p>{medikationsplan.mwirkstoff}</p>
+                  </td>
+                  <td className="px-2 py-4 font-light text-gray-900 text-md whitespace-nowrap">
+                    {medikationsplan.mname}
+                  </td>
+                  <td className="px-2 py-4 font-light text-gray-900 text-md whitespace-nowrap">
+                    {medikationsplan.staerke}
+                  </td>
+                  <td className="px-2 py-4 font-light text-gray-900 text-md whitespace-nowrap">
+                    {DateConverter(new Date(medikationsplan.von))}
+                  </td>
+                  <td className="px-2 py-4 font-light text-gray-900 text-md whitespace-nowrap">
+                    {DateConverter(new Date(medikationsplan.bis))}
+                  </td>
+
+                  <td className="px-2 py-4 font-light text-gray-900 text-md whitespace-nowrap">
+                    {medikationsplan.hinweise}
+                  </td>
+                  <td className="px-2 py-4 font-light text-gray-900 text-md whitespace-nowrap">
+                    {medikationsplan.grund}
+                  </td>
+                  {role === "arzt" && (
+                    <td className="px-6 py-4 font-light text-blue-600 underline text-md whitespace-nowrap">
+                      Löschen
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   );
 };
