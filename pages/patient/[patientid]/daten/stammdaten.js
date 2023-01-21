@@ -1,12 +1,14 @@
 import { Sidebar } from "@/components/Sidebar/Sidebar";
 import { WithSidebar } from "@/components/Wrapper/WithSidebar";
+import { LoadingToast } from "@/page-components/Toast/Toast";
 import { DateConverter } from "@/utils/DateConverter";
 import { getSidebarMenus } from "@/utils/SidebarMenus";
 import { Dialog, Transition } from "@headlessui/react";
-import { fetcher } from "lib/fetcher";
+import { fetcher, postReq } from "lib/fetcher";
 import { getSession } from "next-auth/react";
 import Router from "next/router";
 import { Fragment, useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 import useSWR from "swr";
 const baseURL = "https://wippatientenakte.azure-api.net/";
 
@@ -67,6 +69,38 @@ const Stammdaten = (props) => {
     ];
   }
 
+  const handleDelete = async () => {
+    toast((t) => <LoadingToast text="Anfrage wird erstellt..." />);
+    try {
+      const post = await postReq({
+        url: `${baseURL}/s2/loeschanfragen`,
+        body: {
+          patient: pid,
+        },
+      });
+      if (post) {
+        toast.remove();
+        toast.success(`Anfrage wurde erfolgreich erstellt`, {
+          style: {
+            border: "1px solid green",
+            padding: "16px",
+            color: "#09ff00",
+          },
+        });
+
+        closeModal();
+      }
+    } catch (error) {
+      toast.error(`Anfrage konnte nicht eingereicht werden: ${error}`, {
+        style: {
+          border: "1px solid red",
+          padding: "16px",
+          color: "#ff0000",
+        },
+      });
+    }
+  };
+
   return (
     <WithSidebar>
       <Sidebar menus={getSidebarMenus({ role: userRole, id: session?.id })} />
@@ -91,7 +125,7 @@ const Stammdaten = (props) => {
                 </div>
               </div>
             </div>
-            {pid === session.id && (
+            {pid === session?.id && (
               <div className="mt-5">
                 <button
                   onClick={openModal}
@@ -212,7 +246,7 @@ const Stammdaten = (props) => {
                           <button
                             type="button"
                             className="inline-flex justify-center px-4 py-2 text-sm font-medium text-red-700 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                            onClick={closeModal}
+                            onClick={handleDelete}
                           >
                             Daten löschen
                           </button>

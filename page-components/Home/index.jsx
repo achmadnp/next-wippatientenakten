@@ -13,8 +13,16 @@ export const Home = ({ role, data }) => {
 
         {role === "patient" && (
           <div>
-            <Termine termine={data.termine} />
-            <Medikationsplan medikation={data.medikationsplan} />
+            <Termine
+              termine={data.termine.filter((termin) => {
+                return new Date(termin.datum).getTime() > Date.now();
+              })}
+            />
+            <Medikationsplan
+              medikation={data.medikationsplan.filter((plan) => {
+                return new Date(plan.bis).getTime() > Date.now();
+              })}
+            />
           </div>
         )}
 
@@ -41,5 +49,4 @@ export const Home = ({ role, data }) => {
       </div>
     </div>
   );
-  s;
 };

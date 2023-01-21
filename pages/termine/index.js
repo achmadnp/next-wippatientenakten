@@ -13,7 +13,6 @@ import { getPatientTermin, getUserTerminData } from "lib/data/termine/termin";
 import { getSession } from "next-auth/react";
 import Router from "next/router";
 import { useEffect, useState } from "react";
-const baseURL = "https://wippatientenakte.azure-api.net/";
 
 const Appointment = (props) => {
   const session = props.session;

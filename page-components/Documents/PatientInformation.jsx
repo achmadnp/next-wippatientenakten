@@ -1,3 +1,5 @@
+import { DateConverter } from "@/utils/DateConverter";
+
 export const UserDocTbl = ({ tblData }) => {
   return (
     <div className="overflow-x-auto">
@@ -9,16 +11,22 @@ export const UserDocTbl = ({ tblData }) => {
                 tblData.map((data, i) => (
                   <tr key={i} className="border-b">
                     <td className="px-2 py-4 text-sm font-light text-gray-900 whitespace-nowrap">
-                      {data.praxis}
+                      {DateConverter(new Date(data.datum))}
                     </td>
                     <td className="px-2 py-4 text-sm font-light text-gray-900 whitespace-nowrap">
-                      {data.part}
+                      {data.dokumentName}
                     </td>
                     <td className="px-2 py-4 text-sm font-light text-gray-900 whitespace-nowrap">
-                      {data.datum}
+                      {data.contentType}
                     </td>
                     <td className="px-2 py-4 text-sm text-blue-600 underline cursor-pointer whitespace-nowrap">
-                      <a>Download</a>
+                      <a
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        href={`/docView/${data.id}`}
+                      >
+                        Download
+                      </a>
                     </td>
                   </tr>
                 ))}

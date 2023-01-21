@@ -1,15 +1,19 @@
 import { Input } from "@/components/Inputs/Forms";
 import { StationaryTable } from "@/page-components/Arzt/Home/Patients";
+import Router from "next/router";
 
 export const AssistenzHome = ({ stationaryData }) => {
-  const pages = [1, 2, 3, 4];
-
   return (
     <div className="w-full min-h-screen pt-4 bg-bg-primary">
       <div className="container">
         <div className="flex flex-wrap justify-between">
           <div className="px-2 pt-4 ">
-            <button className="p-2 border border-black rounded-lg shadow">
+            <button
+              onClick={() => {
+                Router.push(`/patient/new`);
+              }}
+              className="p-2 border border-black rounded-lg shadow"
+            >
               Neuen Patienten anlegen
             </button>
           </div>

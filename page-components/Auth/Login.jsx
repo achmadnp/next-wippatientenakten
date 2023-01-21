@@ -1,61 +1,41 @@
 import { IDSvg } from "@/components/svgs/Svgs";
-import {
-  LoadingToast,
-  SuccessToast,
-  FailedToast,
-} from "@/components/Toasts/Toast";
 import { signIn } from "next-auth/react";
 import Router from "next/router";
 import { useState } from "react";
+import { toast } from "react-hot-toast";
+import { LoadingToast } from "../Toast/Toast";
 
 export const Login = (props) => {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("patient");
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSuccessToast, setSuccessToast] = useState(false);
-  const [isFailedToast, setFailedToast] = useState(null);
-  const [message, setMessage] = useState(null);
-
-  const showToast = (state) => {
-    if (state === "init") {
-      setIsLoading(false);
-      setSuccessToast(false);
-      setFailedToast(false);
-    }
-    if (state === "loading") {
-      setIsLoading(true);
-      setSuccessToast(false);
-      setFailedToast(false);
-    }
-    if (state === "success") {
-      setIsLoading(false);
-      setSuccessToast(true);
-      setFailedToast(false);
-    }
-    if (state === "failed") {
-      setIsLoading(false);
-      setSuccessToast(false);
-      setFailedToast(true);
-    }
-
-    setTimeout(() => {
-      setIsLoading(false);
-      setSuccessToast(false);
-      setFailedToast(false);
-    }, 2500);
-  };
-
   const signinUser = async (e) => {
     e.preventDefault();
-    showToast("init");
+    toast((t) => <LoadingToast text="Authentifizierung läuft " />);
 
     let options = { redirect: false, id, password, role };
 
     const res = await signIn("credentials", options);
     if (res?.error) {
+      toast.remove();
+      toast.error(`Fehlerhaft: ungültige Username und/oder Passwort`, {
+        style: {
+          border: "1px solid red",
+          padding: "16px",
+          color: "#ff0000",
+        },
+      });
       return;
+    } else {
+      toast.remove();
+      toast.success(`Anmeldung erfolgreich, redirecting...`, {
+        style: {
+          border: "1px solid green",
+          padding: "16px",
+          color: "#09ff00",
+        },
+      });
     }
 
     setTimeout(() => {
@@ -65,11 +45,6 @@ export const Login = (props) => {
 
   return (
     <div className="">
-      {isLoading && <LoadingToast />}
-
-      {isSuccessToast && <SuccessToast />}
-
-      {isFailedToast && <FailedToast />}
       <div className="flex h-screen bg-gray-300 dark:text-white">
         <div className="w-full max-w-md px-16 py-10 m-auto bg-gray-700 border-2 rounded-lg shadow-lg shadow-cyan-500/50 border-cyan-400 border-primary Border shadow-default">
           <h1 className="mt-2 mb-12 text-2xl font-medium text-center text-primary">
@@ -81,7 +56,7 @@ export const Login = (props) => {
               htmlFor="input-group-1"
               className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
             >
-              ID
+              Username
             </label>
             <div className="relative mb-6">
               <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -144,27 +119,13 @@ export const Login = (props) => {
 
           <div>
             <button
-              onClick={
-                (e) => {
-                  signinUser(e);
-                }
-                // signinUser(e)
-              }
+              onClick={(e) => {
+                signinUser(e);
+              }}
               className="block w-full px-4 py-2 mt-20 font-semibold text-center text-white rounded cursor-pointer bg-c-primary focus:outline-none focus:ring focus:ring-offset-2 focus:ring-rose-500 focus:ring-opacity-80"
             >
               Anmelden
             </button>
-            {/* <div>
-              <p className="block mt-4 text-sm font-medium text-center text-textColor dark:text-textColor-dark">
-                Neu bei uns?
-              </p>
-              <a
-                href="/register"
-                className="block mt-2 text-sm font-bold text-center text-primary-dark hover:underline focus:outline-none focus:ring-2 focus:ring-rose-500"
-              >
-                Konto Erstellen
-              </a>
-            </div> */}
           </div>
         </div>
       </div>

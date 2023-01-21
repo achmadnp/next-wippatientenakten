@@ -50,12 +50,6 @@ export const ArztHome = ({ patientData, stationaryData }) => {
         {firstTab && (
           <PatientTable
             patientData={patientData.filter((patient) => {
-              console.log(
-                new Date(patient.datum).getDate() == new Date().getDate(),
-                new Date(patient.datum).getTime() <
-                  new Date().getTime() + 1 * 24 * 60 * 60 * 1000,
-                new Date(patient.datum).getTime() > Date.now()
-              );
               return (
                 new Date(patient.datum).getDate() == new Date().getDate() &&
                 new Date(patient.datum).getTime() <

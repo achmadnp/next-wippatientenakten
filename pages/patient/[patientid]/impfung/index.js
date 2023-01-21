@@ -22,7 +22,15 @@ const Impfung = (props) => {
     }
   }, [session]);
 
-  let data = [];
+  let filteredData = [];
+  let groupedData = [];
+
+  const groupBy = function (xs, key) {
+    return xs.reduce(function (rv, x) {
+      (rv[x[key]] = rv[x[key]] || []).push(x);
+      return rv;
+    }, {});
+  };
 
   const { data: impfData, error: impfError } = useSWR(
     `${baseURL}/s2/impfungen/`,
@@ -31,6 +39,17 @@ const Impfung = (props) => {
 
   if (impfError) return <div>Failed to Fetch data</div>;
   if (!impfData) return <div>Loading...</div>;
+  if (impfData) {
+    groupedData = groupBy(
+      impfData.filter((data) => data.patientId === pid),
+      "ibezeichnung"
+    );
+
+    filteredData = Object.keys(groupedData).map((key) => [
+      key,
+      groupedData[key],
+    ]);
+  }
 
   return (
     <WithSidebar>
@@ -44,14 +63,11 @@ const Impfung = (props) => {
         <div className="container overflow-hidden">
           {impfError && <div>Failed to Fetch data</div>}
           {!impfData && <div>wird geladen..</div>}
-          {impfData &&
-            impfData
-              .filter((data) => {
-                return data.patientId === pid;
-              })
-              .map((data, i) => {
-                return <VaccDropdown key={i} vac={data} />;
-              })}
+          {filteredData.length == 0 && <div>Keine Impfdaten gefunden</div>}
+          {filteredData &&
+            filteredData.map((data, i) => {
+              return <VaccDropdown key={i} vac={data} />;
+            })}
           {userRole === "arzt" && (
             <div>
               <button

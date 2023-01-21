@@ -34,11 +34,11 @@ export const Sidebar = ({ menus, submenus }) => {
           }`}
         />
         <h1
-          className={`text-white origin-left font-medium text-2xl ${
+          className={`text-white origin-left tracking-wider font-medium text-2xl ${
             !open && "scale-0 duration-300"
           }`}
         >
-          AppName
+          EPApp
         </h1>
       </div>
 

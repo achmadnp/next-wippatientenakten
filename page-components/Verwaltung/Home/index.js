@@ -2,6 +2,7 @@ import { Input } from "@/components/Inputs/Forms";
 import { DateConverter } from "@/utils/DateConverter";
 import { Combobox } from "@headlessui/react";
 import { fetcher } from "lib/fetcher";
+import Router from "next/router";
 import { useState } from "react";
 import useSWR from "swr";
 const baseURL = "https://wippatientenakte.azure-api.net/";
@@ -121,8 +122,13 @@ export const VerwaltungHome = () => {
             </div>
           </div>
           <div className="px-1 mt-5 lg:mt-0">
-            <button className="p-1 border border-black rounded-lg shadow md:px-2">
-              Neuen Patienten anlegen
+            <button
+              onClick={() => {
+                Router.push(`/verwalten/new`);
+              }}
+              className="p-1 border border-black rounded-lg shadow md:px-2"
+            >
+              Neuen Mitarbeiter anlegen
             </button>
           </div>
         </div>
@@ -170,6 +176,16 @@ export const VerwaltungHome = () => {
                 </div>
               </Combobox>
             </div>
+          </div>
+          <div className="px-1 mt-5 lg:mt-0">
+            <button
+              onClick={() => {
+                Router.push(`/patient/new`);
+              }}
+              className="p-1 border border-black rounded-lg shadow md:px-2"
+            >
+              Neuen Patienten anlegen
+            </button>
           </div>
         </div>
 

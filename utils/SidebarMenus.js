@@ -43,7 +43,7 @@ export const getSidebarMenus = ({ role, id }) => {
         {
           title: "Behandlungsformular",
           icon: <DocumentIcon />,
-          ref: "/behandlungsformular",
+          ref: "/form/arzt",
         },
         { title: "Termine", icon: <ClockIcon />, ref: "/termine" },
         { title: "Abmelden", icon: <ArrowLeftOnRectangleIcon /> },
@@ -60,7 +60,7 @@ export const getSidebarMenus = ({ role, id }) => {
         {
           title: "Assistenzformular",
           icon: <DocumentIcon />,
-          ref: "/formular/assistenz",
+          ref: "/form/assistent",
         },
         {
           title: "Stationärer Aufenthalt",
@@ -82,7 +82,7 @@ export const getSidebarMenus = ({ role, id }) => {
         {
           title: "Löschanträge",
           icon: <DocumentMinusIcon />,
-          ref: "/loeschungsantrag",
+          ref: "/loeschen",
         },
         { title: "Abmelden", icon: <ArrowLeftOnRectangleIcon /> },
       ];

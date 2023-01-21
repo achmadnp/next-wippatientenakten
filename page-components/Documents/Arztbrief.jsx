@@ -39,7 +39,13 @@ export const ArztbriefTbl = ({ docs }) => {
                       {DateConverter(new Date(doc.datum))}
                     </td>
                     <td className="px-2 py-4 text-sm text-blue-600 underline cursor-pointer whitespace-nowrap">
-                      <a download={doc.dokumentLink}>Dokument</a>
+                      <a
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        href={`/docView/${doc.id}`}
+                      >
+                        {doc.dokumentLink}
+                      </a>
                     </td>
                   </tr>
                 ))}

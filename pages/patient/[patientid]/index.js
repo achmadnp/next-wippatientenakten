@@ -3,68 +3,40 @@ import { Sidebar } from "@/components/Sidebar/Sidebar";
 import { WithSidebar } from "@/components/Wrapper/WithSidebar";
 import { PatientenVerwaltung } from "@/page-components/Patientenverwaltung";
 import { getSidebarMenus } from "@/utils/SidebarMenus";
+import { fetcher } from "lib/fetcher";
+import { getSession } from "next-auth/react";
+import Router from "next/router";
+import { useEffect } from "react";
+import useSWR from "swr";
+const baseURL = "https://wippatientenakte.azure-api.net/";
 
 const PatientIdx = (props) => {
-  const userData = {
-    role: "verwaltung",
-    data: {
-      personData: [
-        { fieldName: "Vollname", value: "Max Musterman" },
-        { fieldName: "Email", value: "Max@musterman.com" },
-        { fieldName: "Geschlecht", value: "Männlich" },
-        { fieldName: "Geburtsdatum", value: "01.01.2015" },
-        { fieldName: "Telefonnummer", value: "+49012345678" },
-        { fieldName: "Krankenkasse", value: "AOK" },
-      ],
-      termine: [
-        {
-          anliegen: "Blutanalyse + EKG",
-          zeit: "22.11.2022 09:30Uhr",
-          arzt: "Dr. Müller",
-          raum: "Station C1 - Raum 000",
-        },
-        {
-          anliegen: "Blutanalyse + EKG",
-          zeit: "22.11.2022 09:30Uhr",
-          arzt: "Dr. Müller",
-          raum: "Station C1 - Raum 000",
-        },
-        {
-          anliegen: "Blutanalyse + EKG",
-          zeit: "22.11.2022 09:30Uhr",
-          arzt: "Dr. Müller",
-          raum: "Station C1 - Raum 000",
-        },
-      ],
-      medikationsplan: [
-        {
-          wirkstoff: "Ramipiril",
-          stärke: "10mg",
-          anzahl: "1",
-          einheit: "Stück",
-          hinweise: "Blutdruck-Senkung",
-        },
-        {
-          wirkstoff: "Ramipiril",
-          stärke: "10mg",
-          anzahl: "1",
-          einheit: "Stück",
-          hinweise: "Blutdruck-Senkung",
-        },
-      ],
+  const session = props.session;
 
-      stationäreAufnahme: [
-        {
-          standort: "Frankfurt Raum: Station C1 - 103",
-          zeit: "tagesstationäre Aufnahme am 23.06.2022",
-        },
-        {
-          standort: "Frankfurt Raum: Station C1 - 103",
-          zeit: "tagesstationäre Aufnahme am 23.06.2022",
-        },
-      ],
-    },
-  };
+  const userRole = session?.userRole;
+
+  useEffect(() => {
+    if (!session) {
+      Router.push(`/signin`);
+    }
+  }, [session]);
+
+  let data;
+
+  const { data: userData, error: userError } = useSWR(
+    `${baseURL}/s2/patienten/${props.pid.patientid}`,
+    fetcher
+  );
+
+  const { data: stAufData, error: stAufError } = useSWR(
+    `${baseURL}/s3/stationaererAufenthalte/?patientid=${props.pid.patientid}`,
+    fetcher
+  );
+
+  const { data: terminData, error: terminError } = useSWR(
+    `${baseURL}/s3/termine/`,
+    fetcher
+  );
 
   const patientData = [
     { fieldName: "Vollname", value: "Max Musterman" },
@@ -77,16 +49,17 @@ const PatientIdx = (props) => {
 
   return (
     <WithSidebar>
-      <Sidebar menus={getSidebarMenus({ role: userData.role })} />{" "}
-      <div className="w-full min-h-screen bg-bg-primary">
+      <Sidebar menus={getSidebarMenus({ role: userRole })} />{" "}
+      <div className="w-full min-h-screen px-3 pt-8 lg:px-4 bg-bg-primary">
         <div className="container">
           <h1 className="mt-2 mb-5 text-4xl font-semibold underline">
-            Patientenverwaltung
+            Patientdetail
           </h1>
-          {patientData && (
+          {userData && stAufData && (
             <PatientenVerwaltung
-              patientData={userData.data.personData}
-              stationäreAufnahme={userData.data.stationäreAufnahme}
+              isMain={true}
+              patientData={userData}
+              stationäreAufnahme={stAufData}
             />
           )}
         </div>
@@ -96,3 +69,15 @@ const PatientIdx = (props) => {
 };
 
 export default PatientIdx;
+
+export async function getServerSideProps(context) {
+  const session = await getSession(context);
+  const pid = context.params;
+
+  return {
+    props: {
+      session,
+      pid,
+    },
+  };
+}

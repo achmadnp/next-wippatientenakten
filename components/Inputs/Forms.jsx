@@ -39,6 +39,7 @@ export const Input = ({
   type = "text",
   name = "input",
   flex = false,
+  disabled = false,
   label,
   value,
   placeholder = "",
@@ -75,10 +76,13 @@ export const Input = ({
           id={label}
           name={name}
           value={value}
-          className="bg-gray-50 max-w-lg border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          className={`bg-gray-50 ${
+            disabled && "cursor-not-allowed"
+          } max-w-lg border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:focus:ring-blue-500 dark:focus:border-blue-500`}
           placeholder={placeholder}
           onChange={handleChange}
           required
+          disabled={disabled}
         ></input>
       )}
       {helperText && <p className="mt-2 text-gray-800 text-md">{helperText}</p>}
@@ -92,6 +96,7 @@ export const FileInput = ({
   helperText = "",
   multiple = false,
   handleChange,
+  name,
 }) => {
   return (
     <div className={className}>
@@ -106,8 +111,9 @@ export const FileInput = ({
         aria-describedby={`${label}_helper`}
         id={label}
         type="file"
+        name={name}
         multiple={multiple}
-        onChange={(e) => handleChange(e.target.value)}
+        onChange={(e) => handleChange(e.target.files)}
       ></input>
       <div
         className="mt-1 text-sm text-gray-500 dark:text-gray-300"

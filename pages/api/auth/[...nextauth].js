@@ -74,11 +74,12 @@ export const authOpt = {
         }
 
         if (user) {
-          return user;
-          // return signInUser({
-          //   password: password,
-          //   user,
-          // });
+          // return user;
+
+          return signInUser({
+            password: password,
+            user,
+          });
         }
 
         return null;
@@ -111,17 +112,16 @@ export const authOpt = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
 
-  secret: "secret_token_converter",
+  secret: process.env.NEXTAUTH_SECRET,
 };
 
 export default NextAuth(authOpt);
 
 const signInUser = async ({ password, user }) => {
-  if (!user.password) {
+  if (!password) {
     throw new Error("Passwort darf nicht leer sein");
   }
-
-  const isMatch = await bcrypt.compare(password, user.password);
+  const isMatch = await bcrypt.compare(password, user.passhash);
 
   if (!isMatch) {
     throw new Error("Ungültige username / passwort");

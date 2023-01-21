@@ -14,6 +14,8 @@ const baseURL = "https://wippatientenakte.azure-api.net/";
 import "react-datepicker/dist/react-datepicker.css";
 import { fetcher, postReq } from "lib/fetcher";
 import { Combobox } from "@headlessui/react";
+import { toast } from "react-hot-toast";
+import { LoadingToast } from "@/page-components/Toast/Toast";
 
 const NewTermine = (props) => {
   const [terminDate, setTerminDate] = useState(new Date());
@@ -106,7 +108,18 @@ const NewTermine = (props) => {
           );
   }
 
+  const reset = () => {
+    setPatientQuery("");
+    setArztQuery(""), setSelectedPatient("");
+    setKhQuery("");
+    setSelectedKH("");
+    setSelectedArzt("");
+    setBehandlung("");
+    setAnliegen("");
+  };
+
   const handleBestaetigen = async () => {
+    toast((t) => <LoadingToast text="Termin wird erstellt..." />);
     try {
       const post = await postReq({
         url: `${baseURL}/s3/termine`,
@@ -119,11 +132,24 @@ const NewTermine = (props) => {
           anliegen: anliegen,
         },
       });
-      console.log(`post ${post}`);
-      if (post) {
-      }
+      toast.remove();
+      toast.success(`ein Termin wurde erfolgreich erstellt`, {
+        style: {
+          border: "1px solid green",
+          padding: "16px",
+          color: "#09ff00",
+        },
+      });
+      reset();
     } catch (error) {
-      console.log(`error ${error}`);
+      toast.remove();
+      toast.error(`Fehlerhaft, Termin konnte nicht erstellt werden`, {
+        style: {
+          border: "1px solid red",
+          padding: "16px",
+          color: "#ff0000",
+        },
+      });
     }
   };
 

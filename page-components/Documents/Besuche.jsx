@@ -1,3 +1,8 @@
+import { DateConverter } from "@/utils/DateConverter";
+import { fetcher } from "lib/fetcher";
+import useSWR from "swr";
+const baseURL = "https://wippatientenakte.azure-api.net/";
+
 export const BesucheTbl = ({ tblData }) => {
   return (
     <div className="overflow-x-auto">
@@ -10,13 +15,13 @@ export const BesucheTbl = ({ tblData }) => {
                   scope="col"
                   className="px-6 py-4 text-sm font-medium text-left text-gray-900"
                 >
-                  Ort
+                  Datum
                 </th>
                 <th
                   scope="col"
                   className="px-6 py-4 text-sm font-medium text-left text-gray-900"
                 >
-                  Fachbereich
+                  Anliegen
                 </th>
                 <th
                   scope="col"
@@ -28,13 +33,13 @@ export const BesucheTbl = ({ tblData }) => {
                   scope="col"
                   className="px-6 py-4 text-sm font-medium text-left text-gray-900"
                 >
-                  Durchgeführte Untersuchung/Behandlung
+                  Behandlung
                 </th>
                 <th
                   scope="col"
                   className="px-6 py-4 text-sm font-medium text-left text-gray-900"
                 >
-                  Datum/Uhrzeit
+                  Ort
                 </th>
               </tr>
             </thead>
@@ -43,19 +48,19 @@ export const BesucheTbl = ({ tblData }) => {
                 tblData.map((data, i) => (
                   <tr key={i} className="border-b">
                     <td className="px-6 py-4 text-sm font-light text-gray-900 whitespace-nowrap">
-                      {data.ort}
+                      {DateConverter(new Date(data.datum))}
                     </td>
                     <td className="px-6 py-4 text-sm font-light text-gray-900 whitespace-nowrap">
-                      {data.fachbereich}
+                      {data.anliegen}
                     </td>
                     <td className="px-6 py-4 text-sm font-light text-gray-900 whitespace-nowrap">
-                      {data.arzt}
+                      {data.aName}, {data.aVorname}
                     </td>
                     <td className="px-6 py-4 text-sm font-light text-gray-900 whitespace-nowrap">
                       {data.behandlung}
                     </td>
                     <td className="px-6 py-4 text-sm font-light text-gray-900 whitespace-nowrap">
-                      {data.datum}
+                      <RaumDetail raumId={data.raum} />
                     </td>
                   </tr>
                 ))}
@@ -63,6 +68,29 @@ export const BesucheTbl = ({ tblData }) => {
           </table>
         </div>
       </div>
+    </div>
+  );
+};
+
+export const RaumDetail = ({ raumId }) => {
+  const { data: khidData, error: khidError } = useSWR(
+    `${baseURL}/s3/raume/${raumId}`,
+    fetcher
+  );
+
+  const { data: khData, error: khError } = useSWR(
+    khidData ? `${baseURL}/s4/krankenhauser/${khidData.krankenhaus}` : null,
+    fetcher
+  );
+
+  return (
+    <div>
+      {!khData && <div>Loading...</div>}
+      {khData && (
+        <p>
+          {khData.name}, Raum: {khidData.raumnummer}
+        </p>
+      )}
     </div>
   );
 };

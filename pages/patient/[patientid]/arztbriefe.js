@@ -21,12 +21,22 @@ const Arztbrief = (props) => {
   }, [session]);
 
   const { data: abData, error: abError } = useSWR(
-    `${baseURL}/s3/dokumente/?patientid=${session?.id}&bezeichnung=arztbriefe`,
+    `${baseURL}/s3/dokumente/?patientid=${props?.pid.patientid}`,
     fetcher
   );
 
+  let arztBrief;
+
   if (abError) <div>fehler</div>;
-  if (abData) <div>Loading...</div>;
+  if (!abData) <div>Loading...</div>;
+
+  if (abData) {
+    arztBrief = abData.filter((data) => {
+      return data.bezeichnung.includes("arztbrief");
+    });
+  }
+
+  console.log(arztBrief);
 
   return (
     <WithSidebar>
@@ -38,7 +48,7 @@ const Arztbrief = (props) => {
           </p>
         </div>
         <div className="container overflow-hidden">
-          <ArztbriefTbl docs={abData} />
+          <ArztbriefTbl docs={arztBrief} />
         </div>
       </div>
     </WithSidebar>
@@ -49,10 +59,12 @@ export default Arztbrief;
 
 export async function getServerSideProps(context) {
   const session = await getSession(context);
+  const pid = context.params;
 
   return {
     props: {
       session,
+      pid,
     },
   };
 }

@@ -1,5 +1,10 @@
+import { LoadingToast } from "@/components/Toasts/Toast";
 import { DateConverter, TimeConverter } from "@/utils/DateConverter";
 import { getRaumKrankenhaus } from "lib/data/krankenhaus/krankenhaus";
+import { deleteReq } from "lib/fetcher";
+import { toast } from "react-hot-toast";
+
+const baseURL = "https://wippatientenakte.azure-api.net/";
 
 export const NaechsteTermine = ({ termine, role }) => {
   let allKH = [];
@@ -27,7 +32,7 @@ export const NaechsteTermine = ({ termine, role }) => {
               <TableHead />
               <tbody>
                 {nextTermine?.map((termin, i) => (
-                  <tr key={termin.id} className="border-b">
+                  <tr key={i} className="border-b">
                     <td className="px-6 py-4 font-light text-gray-900 text-md whitespace-nowrap">
                       <div>
                         <p>{DateConverter(new Date(termin.datum))}</p>
@@ -58,17 +63,38 @@ export const NaechsteTermine = ({ termine, role }) => {
 };
 
 export const AlleTermine = ({ termine, role }) => {
-  let allKH = [];
+  const handleDelete = async ({ termine }) => {
+    const datum = termine.datum.replaceAll(":", "%3A");
+    toast((t) => <LoadingToast text="Anfrage wird erstellt..." />);
+    try {
+      const delReq = await deleteReq({
+        url: `${baseURL}s3/termine/${termine.pid}/${termine.aid}/${datum}`,
+      });
 
-  termine?.map((termin, i) => {
-    const khData = getRaumKrankenhaus({ raumId: termin.raum });
+      if (delReq) {
+        toast.remove();
+        toast.success(`ein Termin wurde erfolgreich gelöscht`, {
+          style: {
+            border: "1px solid green",
+            padding: "16px",
+            color: "#09ff00",
+          },
+        });
 
-    if (khData) {
-      allKH.push(khData?.name);
+        window.location.reload(true);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.remove();
+      toast.error(`Fehlerhaft: Vorgang abgebrochen`, {
+        style: {
+          border: "1px solid red",
+          padding: "16px",
+          color: "#ff0000",
+        },
+      });
     }
-  });
-
-  const handleDelete = ({ termine }) => {};
+  };
 
   return (
     <div className="overflow-x-auto">
@@ -89,18 +115,30 @@ export const AlleTermine = ({ termine, role }) => {
                     {termin.anliegen}
                   </td>
                   <td className="px-6 py-4 font-light text-gray-900 text-md whitespace-nowrap">
-                    {termin.aName}
+                    {termin.aVorname} {termin.aName}
                   </td>
                   <td className="px-6 py-4 font-light text-gray-900 text-md whitespace-nowrap">
-                    {termin.pName}
+                    {termin.pVorname} {termin.pName}
                   </td>
 
                   <td className="px-6 py-4 font-light text-gray-900 text-md whitespace-nowrap">
-                    {allKH[i]} Raum {termin.raumnummer}
+                    <RaumTermin data={termin} />
                   </td>
                   {role === "arzt" && (
                     <td className="px-6 py-4 font-light text-blue-600 underline text-md whitespace-nowrap">
-                      <button>Löschen</button>
+                      <button
+                        onClick={(e) => {
+                          handleDelete({
+                            termine: {
+                              pid: termin.patientId,
+                              aid: termin.arztId,
+                              datum: termin.datum,
+                            },
+                          });
+                        }}
+                      >
+                        Löschen
+                      </button>
                     </td>
                   )}
                 </tr>
@@ -110,6 +148,26 @@ export const AlleTermine = ({ termine, role }) => {
         </div>
       </div>
     </div>
+  );
+};
+
+const RaumTermin = ({ data }) => {
+  let kh;
+
+  kh = getRaumKrankenhaus({ raumId: data.raum });
+
+  if (kh) {
+    console.log(data);
+  }
+
+  return (
+    <>
+      {kh && (
+        <p>
+          {kh.name}, Raum: {data.raumnummer}
+        </p>
+      )}
+    </>
   );
 };
 

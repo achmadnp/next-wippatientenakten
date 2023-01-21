@@ -18,12 +18,15 @@ export const Termine = ({ title = "Kommende Termine", termine }) => {
     <div className="mt-6 md:mt-10">
       <p className="mb-4 text-lg font-bold underline">{title}</p>
       <div className="flex flex-wrap gap-2 md:gap-4">
+        {termine.length === 0 && (
+          <span className="">Keine kommende Termine</span>
+        )}
         {termine.map((termin, i) => (
           <button
             key={i}
             onClick={() => {
               Router.push({
-                pathname: `/termine/${termin.patientId}/${termin.arztId}/${termin.datum}`,
+                pathname: `/termine/${termin.patientId}&${termin.arztId}&${termin.datum}`,
               });
             }}
             className="block max-w-md p-6 bg-green-200 border rounded-lg hover:bg-green-100"

@@ -1,4 +1,5 @@
 export const PersonalInfo = ({ data }) => {
+  console.log(data);
   return (
     <>
       <div className="p-2 space-y-4 border-2 rounded">

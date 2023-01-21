@@ -1,6 +1,7 @@
 import { Input } from "@/components/Inputs/Forms";
 import { Sidebar } from "@/components/Sidebar/Sidebar";
 import { WithSidebar } from "@/components/Wrapper/WithSidebar";
+import { Unauthorized } from "@/page-components/Error/Unauthorized";
 import { PatientenVerwaltung } from "@/page-components/Patientenverwaltung";
 import { getSidebarMenus } from "@/utils/SidebarMenus";
 import { Combobox } from "@headlessui/react";
@@ -40,10 +41,8 @@ const PatientenVerwaltungMain = (props) => {
   );
 
   if (userRole === "patient") {
-    return <div>Unauthorized</div>;
+    return <Unauthorized />;
   }
-
-  console.log(data);
 
   const filteredPeople =
     patientQuery === ""
@@ -57,7 +56,7 @@ const PatientenVerwaltungMain = (props) => {
   return (
     <WithSidebar>
       <Sidebar menus={getSidebarMenus({ role: userRole })} />
-      <div className="w-full min-h-screen bg-bg-primary">
+      <div className="w-full min-h-screen px-3 pt-8 lg:px-4 bg-bg-primary">
         <div className="container px-6">
           <h1 className="mt-2 mb-5 text-4xl font-semibold underline">
             Patientenverwaltung
@@ -105,7 +104,12 @@ const PatientenVerwaltungMain = (props) => {
               </div>
             </div>
             <div className="px-2 mt-8 lg:mt-0">
-              <button className="p-2 border border-black rounded-lg shadow">
+              <button
+                onClick={() => {
+                  Router.push(`${Router.asPath}/new`);
+                }}
+                className="p-2 border border-black rounded-lg shadow"
+              >
                 Neuen Patienten anlegen
               </button>
             </div>

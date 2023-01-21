@@ -5,27 +5,50 @@ import {
   RadioInput,
 } from "@/components/Inputs/Forms";
 import { data } from "autoprefixer";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { docUpload, fetcher, postReq } from "lib/fetcher";
+import useSWR from "swr";
+import { Combobox } from "@headlessui/react";
+import DatePicker, { registerLocale } from "react-datepicker";
+import de from "date-fns/locale/de";
+import "react-datepicker/dist/react-datepicker.css";
+import { toast } from "react-hot-toast";
+import { LoadingToast } from "@/page-components/Toast/Toast";
+import Router from "next/router";
+import { Unauthorized } from "@/page-components/Error/Unauthorized";
 
-const NewPatient = () => {
+registerLocale("de", de);
+
+const baseURL = "https://wippatientenakte.azure-api.net/";
+
+const NewPatient = (props) => {
+  const session = props.session;
+
+  const userRole = session?.userRole;
+
+  // useEffect(() => {
+  //   if (!session) {
+  //     Router.push(`/signin`);
+  //   }
+  // }, [session]);
+
   const [data, setData] = useState({
+    username: "",
+    passwort: "",
     nachname: "",
     vorname: "",
-    geburtsdatum: "",
+    geburtsdatum: new Date(),
     geschlecht: "männlich",
     telefonnummer: "",
     email: "",
     strasse: "",
     ortplz: "",
-    krankenkasse: "",
-    versicherungsnr: "",
     vorerkrankungen: "",
     unvertraeglichkeiten: "",
-    gewicht: "",
-    groesse: "",
+    gewicht: 80,
+    groesse: 180,
     organausweis: false,
     organausweisbild: null,
-    medikamente: "",
     operation: "",
     patientenverfuegung: false,
     patientenverfuegungbild: null,
@@ -35,9 +58,49 @@ const NewPatient = () => {
     dsgvo: false,
   });
 
+  const [organFile, setOrganFile] = useState(null);
+  const [verfuegungFile, setVerfuegungFile] = useState(null);
+  const [vollmachtFile, setVollmachtFile] = useState(null);
+
+  const { data: kkData, error: kkError } = useSWR(
+    `${baseURL}/s2/krankenkassen`,
+    fetcher
+  );
+
+  // medikamente
+  const { data: mdkData, error: mdkError } = useSWR(
+    `${baseURL}/s2/medikamente`,
+    fetcher
+  );
+
+  let filteredKK;
+  let filteredMDK;
+
+  const [kkQuery, setKkQuery] = useState("");
+  const [mdkQuery, setMDKQuery] = useState("");
+
+  const [selectedKK, setSelectedKK] = useState("");
+  const [selectedMdk, setSelectedMdk] = useState("");
+
   const [page, setPage] = useState(1);
 
   const pages = [1, 2, 3];
+
+  if (kkData && mdkData) {
+    filteredKK =
+      kkQuery === ""
+        ? kkData
+        : kkData.filter((kk) => {
+            return kk.name.toLowerCase().includes(kkQuery.toLowerCase());
+          });
+
+    filteredMDK =
+      mdkQuery === ""
+        ? mdkData
+        : mdkData.filter((mdk) => {
+            return mdk.name.toLowerCase().includes(mdkQuery.toLowerCase());
+          });
+  }
 
   const handleChange = (e) => {
     const value = e.target.value;
@@ -67,12 +130,215 @@ const NewPatient = () => {
     }
   };
 
-  const handleSubmit = () => {
-    console.log(data);
+  const resetData = (page) => {
+    if (page === 1) {
+      setData({
+        ...data,
+        username: "",
+        passwort: "",
+        nachname: "",
+        vorname: "",
+        geburtsdatum: new Date(),
+        geschlecht: "männlich",
+        telefonnummer: "",
+        email: "",
+        strasse: "",
+        ortplz: "",
+      });
+
+      setSelectedKK("");
+    } else if (page === 2) {
+      setData({
+        ...data,
+        vorerkrankungen: "",
+        unvertraeglichkeiten: "",
+        gewicht: 80,
+        groesse: 180,
+        organausweis: false,
+        operation: "",
+        patientenverfuegung: false,
+        vorsorgevollmacht: false,
+      });
+
+      setSelectedMdk("");
+    } else if (page === 3) {
+      setData({ data, dsgvo: false });
+    }
   };
 
+  const handleFile = (e) => {
+    const doctype = e.target.name;
+    if (doctype === "organausweis") {
+      setOrganFile(e.target.value[0]);
+    } else if (doctype === "pverfuegung") {
+      setVerfuegungFile(e.target.value[0]);
+    } else if (doctype === "pvollmacht") {
+      setVollmachtFile(e.target.value[0]);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    let createdPatient;
+    toast((t) => <LoadingToast text="Patient wird erstellt..." />);
+    try {
+      createdPatient = await fetch("../api/patient/createpatient", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          url: `${baseURL}s2/patienten`,
+          username: data.username,
+          password: data.passwort,
+          name: data.nachname,
+          vorname: data.vorname,
+          geburtsdatum: data.geburtsdatum.toISOString(),
+          geschlecht: data.geschlecht.charAt(0),
+          adresse: `${data.strasse} ${data.ortplz}`,
+          telefonnummer: data.telefonnummer,
+          email: data.email,
+          dsgvo: data.dsgvo,
+          letzteaenderung: new Date().toISOString(),
+          krankenkasse: selectedKK.kid,
+          loeschanfrage: "",
+        }),
+      });
+
+      if (createdPatient.ok) {
+        const patient = await createdPatient.json();
+        toast.remove();
+        toast.success(`Patient wurde erfolgreich erstellt`, {
+          style: {
+            border: "1px solid green",
+            padding: "16px",
+            color: "#09ff00",
+          },
+        });
+
+        toast((t) => (
+          <LoadingToast text="Gesundheitsdaten werden hochgeladen..." />
+        ));
+
+        // create user gesundheitsdaten
+        const ghDaten = await postReq({
+          url: `${baseURL}/s2/gesundheitsdaten`,
+          body: {
+            vorerkrankungen: data.vorerkrankungen,
+            allergien: data.unvertraeglichkeiten,
+            gewicht: data.gewicht,
+            groeßeCM: data.groesse,
+            ops: data.operation,
+            patientenverfuegung: data.patientenverfuegung,
+            patient: patient.id,
+          },
+        });
+
+        if (ghDaten) {
+          toast.remove();
+          toast.success(`Gesundheitsdaten wurde erfolgreich hinzugefügt`, {
+            style: {
+              border: "1px solid green",
+              padding: "16px",
+              color: "#09ff00",
+            },
+          });
+
+          toast((t) => <LoadingToast text="Dokumenten werden geprüft..." />);
+          if (organFile) {
+            try {
+              const fileUpload = await docUpload({
+                url: `${baseURL}s3/dokumente/?patient=${patient.id}&bezeichnung=organspendeausweis`,
+                body: {
+                  File: organFile,
+                },
+              });
+            } catch (error) {}
+          }
+          if (verfuegungFile) {
+            try {
+              const fileUpload = await docUpload({
+                url: `${baseURL}s3/dokumente/?patient=${patient.id}&bezeichnung=verfuegung`,
+                body: {
+                  File: verfuegungFile,
+                },
+              });
+            } catch (error) {}
+          }
+          if (vollmachtFile) {
+            try {
+              const fileUpload = await docUpload({
+                url: `${baseURL}s3/dokumente/?patient=${patient.id}&bezeichnung=vollmacht`,
+                body: {
+                  File: vollmachtFile,
+                },
+              });
+            } catch (error) {}
+          }
+
+          toast.remove();
+          toast.success(`Daten werden erfolgreich erstellt`, {
+            style: {
+              border: "1px solid green",
+              padding: "16px",
+              color: "#09ff00",
+            },
+          });
+
+          toast((t) => (
+            <LoadingToast text="Sie werden in Kürze weitergeleitet..." />
+          ));
+
+          setTimeout(() => {
+            Router.push(`/`);
+          }, 500);
+        } else {
+          toast.remove();
+          toast.error(`Gesundheitsdaten konnte nicht hinzugefügt werden`, {
+            style: {
+              border: "1px solid red",
+              padding: "16px",
+              color: "#ff0000",
+            },
+          });
+        }
+      }
+
+      if (!createdPatient.ok) {
+        const res = await createdPatient.json();
+        toast.remove();
+
+        toast.error(`Ein Patient konnte nicht erstellt werden`, {
+          style: {
+            border: "1px solid red",
+            padding: "16px",
+            color: "#ff0000",
+          },
+        });
+      }
+    } catch (error) {
+      toast.error(
+        `Vorgang abgebrochen: Patient mit diesem Username bereits existiert`,
+        {
+          style: {
+            border: "1px solid red",
+            padding: "16px",
+            color: "#ff0000",
+          },
+        }
+      );
+    }
+  };
+
+  if (!kkData) {
+    return <div>Loading...</div>;
+  }
+
+  if (userRole == "patient") {
+    return <Unauthorized />;
+  }
+
   return (
-    <div className="w-full min-h-screen col-span-4 pt-8 md:col-span-5 2xl:col-span-6 bg-bg-primary">
+    <div className="w-full min-h-screen col-span-4 px-4 pt-8 md:col-span-5 2xl:col-span-6 bg-bg-primary">
       <div className="container ">
         <h1 className="mt-2 mb-5 text-4xl font-semibold underline">
           Neuer Patient hinzufügen
@@ -83,9 +349,23 @@ const NewPatient = () => {
               Stammdaten
             </h1>
             <h1 className="mt-4 mb-5 text-lg font-bold">
-              Tragen Sie hier ihre persönlichen aktuellen Information ein:
+              Tragen Sie hier die persönlichen aktuellen Informationen ein:
             </h1>
             <div className="grid grid-cols-1 space-2 xl:grid-cols-2">
+              <Input
+                name="username"
+                label={"Username"}
+                value={data.username}
+                handleChange={handleChange}
+              />
+
+              <Input
+                type="password"
+                name="passwort"
+                label={"Passwort"}
+                value={data.passwort}
+                handleChange={handleChange}
+              />
               <Input
                 name="nachname"
                 label={"Nachname"}
@@ -98,12 +378,29 @@ const NewPatient = () => {
                 value={data.vorname}
                 handleChange={handleChange}
               />
-              <Input
-                name="geburtsdatum"
-                label={"Geburtsdatum"}
-                value={data.geburtsdatum}
-                handleChange={handleChange}
-              />
+
+              <div className="my-auto">
+                <label className="block mb-2 text-lg font-medium text-gray-900 ">
+                  Geburtsdatum
+                </label>
+
+                <DatePicker
+                  selected={data.geburtsdatum}
+                  name="geburtsdatum"
+                  dateFormat="dd.MM.yyyy"
+                  locale="de"
+                  maxDate={new Date()}
+                  onChange={(date) =>
+                    handleChange({
+                      target: {
+                        name: "geburtsdatum",
+                        value: date,
+                      },
+                    })
+                  }
+                  className="block w-full max-w-lg p-2 my-auto font-medium leading-normal text-gray-700 bg-white border border-gray-300 rounded-md shadow-md appearance-none"
+                ></DatePicker>
+              </div>
 
               <RadioInput
                 label={"Geschlecht"}
@@ -115,6 +412,7 @@ const NewPatient = () => {
 
               <Input
                 name="telefonnummer"
+                type="number"
                 label={"Telefonnummer"}
                 value={data.telefonnummer}
                 handleChange={handleChange}
@@ -141,27 +439,69 @@ const NewPatient = () => {
                 handleChange={handleChange}
               />
 
-              <Input
-                name="krankenkasse"
-                label={"Krankenkasse"}
-                value={data.krankenkasse}
-                handleChange={handleChange}
-              />
-
-              <Input
-                name="versicherungsnr"
-                label={"Versicherungsnummer"}
-                value={data.versicherungsnr}
-                handleChange={handleChange}
-              />
+              <div className="flex flex-wrap justify-between">
+                <div className="w-full">
+                  <p className="my-auto text-lg font-medium text-gray-900 ">
+                    Krankenkasse: &nbsp;
+                  </p>
+                  <div className="flex w-full flex-nowrap">
+                    <Combobox
+                      value={selectedKK ? `${selectedKK?.name}` : ""}
+                      onChange={(e) => {
+                        setSelectedKK({ kid: e.id, name: e.name });
+                      }}
+                    >
+                      <div className="relative w-full max-w-lg mt-1">
+                        <div className="relative w-full text-left bg-white shadow-md cursor-default rounded-xl">
+                          <Combobox.Input
+                            className="min-w-full py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 border-none w-80 focus:ring-0"
+                            height="60px"
+                            onChange={(event) => setKkQuery(event.target.value)}
+                          />
+                          <Combobox.Options className="absolute z-50 w-full py-1 mt-1 overflow-auto text-base bg-white rounded-md shadow-lg max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                            {filteredKK?.length === 0 && kkQuery !== "" ? (
+                              <div className="relative px-4 py-3 text-gray-700 cursor-default select-none">
+                                Keine Krankenkasse gefunden.
+                              </div>
+                            ) : (
+                              filteredKK?.map((kk) => (
+                                <Combobox.Option
+                                  className="p-2 font-semibold hover:bg-gray-200"
+                                  key={kk.id}
+                                  value={kk}
+                                >
+                                  <div>{kk.name}</div>
+                                  <div>{kk.stanort}</div>
+                                  <div className="font-thin">ID: {kk.id}</div>
+                                </Combobox.Option>
+                              ))
+                            )}
+                          </Combobox.Options>
+                        </div>
+                      </div>
+                    </Combobox>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div className="flex m-8">
+            <div className="flex flex-row-reverse m-8">
               <button
-                onClick={handleSubmit}
-                className={`px-3 py-2  mx-[80%] rounded-lg leading-tight  border "cursor-pointer text-gray-900 border-black`}
+                onClick={() => {
+                  setPage(page + 1);
+                }}
+                className={`px-3 py-2 rounded-lg leading-tight mx-6  border "cursor-pointer text-gray-900 border-black`}
               >
                 Weiter
+              </button>
+
+              <button
+                onClick={() => {
+                  resetData(page);
+                }}
+                className={`px-3 py-2 rounded-lg leading-tight mx-6 border "cursor-pointer text-gray-900 border-red-500`}
+              >
+                Verwerfen
               </button>
             </div>
           </div>
@@ -191,12 +531,14 @@ const NewPatient = () => {
               />
               <Input
                 name="gewicht"
+                type="number"
                 label={"Gewicht in kg"}
                 value={data.gewicht}
                 handleChange={handleChange}
               />
               <Input
                 name="groesse"
+                type="number"
                 label={"Größe in cm"}
                 value={data.groesse}
                 handleChange={handleChange}
@@ -210,16 +552,66 @@ const NewPatient = () => {
                   handleCheck={handleChange}
                 />
                 {data.organausweis && (
-                  <FileInput className={"max-w-sm mx-10"} />
+                  <FileInput
+                    name="organausweis"
+                    className={"max-w-sm mx-10"}
+                    handleChange={(e) => {
+                      handleFile({
+                        target: {
+                          name: "organausweis",
+                          value: e,
+                        },
+                      });
+                    }}
+                  />
                 )}
               </div>
 
-              <Input
-                name="medikamente"
-                label={"Dauerhafte Medikamente"}
-                value={data.medikamente}
-                handleChange={handleChange}
-              />
+              <div className="flex flex-wrap justify-between">
+                <div className="w-full">
+                  <p className="my-auto text-lg font-medium text-gray-900 ">
+                    Dauerhaftes Medikament: &nbsp;
+                  </p>
+                  <div className="flex w-full flex-nowrap">
+                    <Combobox
+                      value={selectedMdk ? `${selectedMdk?.name}` : ""}
+                      onChange={(e) => {
+                        setSelectedMdk({ mid: e.id, name: e.name });
+                      }}
+                    >
+                      <div className="relative w-full max-w-lg mt-1">
+                        <div className="relative w-full text-left bg-white shadow-md cursor-default rounded-xl">
+                          <Combobox.Input
+                            className="min-w-full py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 border-none w-80 focus:ring-0"
+                            height="60px"
+                            onChange={(event) =>
+                              setMDKQuery(event.target.value)
+                            }
+                          />
+                          <Combobox.Options className="absolute z-50 w-full py-1 mt-1 overflow-auto text-base bg-white rounded-md shadow-lg max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                            {filteredMDK?.length === 0 && mdkQuery !== "" ? (
+                              <div className="relative px-4 py-3 text-gray-700 cursor-default select-none">
+                                Kein Medikament gefunden.
+                              </div>
+                            ) : (
+                              filteredMDK?.map((mdk) => (
+                                <Combobox.Option
+                                  className="p-2 font-semibold hover:bg-gray-200"
+                                  key={mdk.id}
+                                  value={mdk}
+                                >
+                                  <div>{mdk.name}</div>
+                                  <div className="font-thin">ID: {mdk.id}</div>
+                                </Combobox.Option>
+                              ))
+                            )}
+                          </Combobox.Options>
+                        </div>
+                      </div>
+                    </Combobox>
+                  </div>
+                </div>
+              </div>
 
               <Input
                 name="operation"
@@ -236,7 +628,18 @@ const NewPatient = () => {
                   handleCheck={handleChange}
                 />
                 {data.patientenverfuegung && (
-                  <FileInput className={"max-w-sm mx-10"} />
+                  <FileInput
+                    name="pverfuegung"
+                    className={"max-w-sm mx-10"}
+                    handleChange={(e) => {
+                      handleFile({
+                        target: {
+                          name: "pverfuegung",
+                          value: e,
+                        },
+                      });
+                    }}
+                  />
                 )}
               </div>
 
@@ -249,19 +652,45 @@ const NewPatient = () => {
                   handleCheck={handleChange}
                 />
                 {data.vorsorgevollmacht && (
-                  <FileInput className={"max-w-sm mx-10"} />
+                  <FileInput
+                    name="pvollmacht"
+                    className={"max-w-sm mx-10"}
+                    handleChange={(e) => {
+                      handleFile({
+                        target: {
+                          name: "pvollmacht",
+                          value: e,
+                        },
+                      });
+                    }}
+                  />
                 )}
               </div>
             </div>
             <div className="flex justify-between m-8 max-w-7xl">
+              <div>
+                <button
+                  onClick={() => {
+                    setPage(page - 1);
+                  }}
+                  className={`px-3 py-2 rounded-lg leading-tight  border "cursor-pointer text-gray-900 border-black`}
+                >
+                  Zurück
+                </button>
+                <button
+                  onClick={() => {
+                    resetData(page);
+                  }}
+                  className={`px-3 py-2 rounded-lg leading-tight mx-6 border "cursor-pointer text-gray-900 border-red-500`}
+                >
+                  Verwerfen
+                </button>
+              </div>
+
               <button
-                onClick={handleSubmit}
-                className={`px-3 py-2 rounded-lg leading-tight  border "cursor-pointer text-gray-900 border-black`}
-              >
-                Zurück
-              </button>
-              <button
-                onClick={handleSubmit}
+                onClick={() => {
+                  setPage(page + 1);
+                }}
                 className={`px-3 py-2 rounded-lg leading-tight  border "cursor-pointer text-gray-900 border-black`}
               >
                 Weiter
@@ -329,26 +758,50 @@ const NewPatient = () => {
 
             <div className="my-10">
               <CheckbokInput
+                name={"nutzungsbedingung"}
                 label={""}
                 content={
                   "Hiermit stimme ich den Nutzungsbedingungen der elektronischen Patientenakte zu"
                 }
-                handleCheck={() => {}}
+                handleCheck={(e) => {
+                  handleChange({
+                    target: {
+                      name: e.target.name,
+                      value: e.target.checked,
+                    },
+                  });
+                }}
               />
               <CheckbokInput
+                name={"dsgvo"}
                 label={""}
                 content={
                   "Hiermit stimme ich der Datenverarbeitung gemäß DSGVO zu"
                 }
-                handleCheck={() => {}}
+                handleCheck={(e) => {
+                  handleChange({
+                    target: {
+                      name: e.target.name,
+                      value: e.target.checked,
+                    },
+                  });
+                }}
               />
             </div>
 
             <button
+              onClick={() => {
+                setPage(page - 1);
+              }}
+              className={`px-3 py-2 mx-6 rounded-lg leading-tight  border "cursor-pointer text-gray-900 border-black`}
+            >
+              Zurück
+            </button>
+            <button
               disabled={data.dsgvo !== true}
               onClick={handleSubmit}
-              className={`px-3 py-2 leading-tight  border  ${
-                data.dsgvo
+              className={`px-3 py-2 mx-6 leading-tight rounded-lg border  ${
+                data.dsgvo && data.nutzungsbedingung
                   ? "cursor-pointer text-gray-900 border-black"
                   : "cursor-not-allowed text-gray-400 border-gray-400"
               }`}

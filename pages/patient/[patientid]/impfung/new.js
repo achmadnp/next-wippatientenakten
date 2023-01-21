@@ -10,6 +10,8 @@ import useSWR from "swr";
 import "react-datepicker/dist/react-datepicker.css";
 import { Combobox } from "@headlessui/react";
 import { fetcher, postReq } from "lib/fetcher";
+import Router from "next/router";
+import { Unauthorized } from "@/page-components/Error/Unauthorized";
 
 registerLocale("de", de);
 const baseURL = "https://wippatientenakte.azure-api.net";
@@ -100,8 +102,8 @@ const NewImpfung = (props) => {
           });
   }
 
-  if (userRole !== "arzt") {
-    return <div>Unauthorized</div>;
+  if (userRole !== "arzt" && userRole !== "assistent") {
+    return <Unauthorized />;
   }
 
   const handleBestaetigen = async () => {

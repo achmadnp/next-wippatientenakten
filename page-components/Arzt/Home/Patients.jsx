@@ -1,4 +1,5 @@
 import { DateConverter, TimeConverter } from "@/utils/DateConverter";
+import Router from "next/router";
 
 export const PatientTable = (props) => {
   const patientData = props.patientData;
@@ -114,9 +115,14 @@ export const StationaryTable = (props) => {
                           {DateConverter(new Date(data.aufnahmezeitpunkt))}
                         </td>
                         <td className="px-2 py-4 text-sm font-normal text-gray-900">
-                          <a className="text-blue-500 underline cursor-pointer">
+                          <button
+                            onClick={() => {
+                              Router.push(`/patient/${data.patientId}`);
+                            }}
+                            className="text-blue-500 underline cursor-pointer"
+                          >
                             {data.pVorname} {data.pName}
-                          </a>
+                          </button>
                         </td>
                         <td className="px-2 py-4 text-sm font-light text-gray-900 whitespace-nowrap">
                           {data.raumNummer}

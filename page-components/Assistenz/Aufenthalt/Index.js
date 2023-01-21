@@ -6,6 +6,8 @@ import { useState } from "react";
 import useSWR from "swr";
 import { Combobox } from "@headlessui/react";
 import { fetcher, postReq } from "lib/fetcher";
+import { LoadingToast } from "@/page-components/Toast/Toast";
+import { toast } from "react-hot-toast";
 const baseURL = "https://wippatientenakte.azure-api.net";
 
 export const AufenthaltComponentPage = () => {
@@ -69,6 +71,7 @@ export const AufenthaltComponentPage = () => {
   }
 
   const handleBestaetigen = async () => {
+    toast((t) => <LoadingToast text="wird geladen..." />);
     try {
       const post = await postReq({
         url: `${baseURL}/s3/stationaererAufenthalte`,
@@ -81,11 +84,25 @@ export const AufenthaltComponentPage = () => {
         },
       });
 
-      console.log(`post ${post}`);
+      toast.remove();
+      toast.success(`Stationärer Aufenthalt wurde erfolgreich hinzugefügt`, {
+        style: {
+          border: "1px solid green",
+          padding: "16px",
+          color: "#09ff00",
+        },
+      });
       if (post) {
       }
     } catch (error) {
-      console.log(`error ${error}`);
+      toast.remove();
+      toast.error(`Fehlerhaft, Vorgang abgebrochen`, {
+        style: {
+          border: "1px solid red",
+          padding: "16px",
+          color: "#ff0000",
+        },
+      });
     }
   };
 
