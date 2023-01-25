@@ -127,7 +127,7 @@ const NewTermine = (props) => {
           patientId: selectedPatient.pid,
           arztId: selectedArzt.aid,
           raum: selectedKH.rid,
-          datum: terminDate,
+          datum: terminDate.toISOString(),
           behandlung: behandlung,
           anliegen: anliegen,
         },

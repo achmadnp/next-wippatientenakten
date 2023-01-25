@@ -58,7 +58,6 @@ const Loeschen = (props) => {
 
   const handleDelete = async () => {
     toast((t) => <LoadingToast text="Anfrage wird erstellt..." />);
-    console.log(staging);
     try {
       const res = await deleteReq({
         url: `${baseURL}s2/patienten/${staging.patient}`,

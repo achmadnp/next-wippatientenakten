@@ -12,6 +12,8 @@ import { Combobox } from "@headlessui/react";
 import { fetcher, postReq } from "lib/fetcher";
 import Router from "next/router";
 import { Unauthorized } from "@/page-components/Error/Unauthorized";
+import { toast } from "react-hot-toast";
+import { LoadingToast } from "@/page-components/Toast/Toast";
 
 registerLocale("de", de);
 const baseURL = "https://wippatientenakte.azure-api.net";
@@ -106,7 +108,17 @@ const NewImpfung = (props) => {
     return <Unauthorized />;
   }
 
+  const reset = () => {
+    setPatientQuery("");
+    setSelectedPatient("");
+    setArztQuery("");
+    setSelectedArzt("");
+    setImpfstoffQuery("");
+    setSelectedImpfstoff("");
+  };
+
   const handleBestaetigen = async () => {
+    toast((t) => <LoadingToast text="Impfungsdaten werden hinzugefügt..." />);
     try {
       const post = await postReq({
         url: `${baseURL}/s2/impfungen`,
@@ -114,15 +126,28 @@ const NewImpfung = (props) => {
           patientId: selectedPatient.pid,
           arzt: selectedArzt.aid,
           impfstoffId: selectedImpfstoff.iid,
-          datum: impfDatum,
+          datum: impfDatum.toISOString(),
           anzahl: anzahl,
         },
       });
-      console.log(`post ${post}`);
-      if (post) {
-      }
+      toast.remove();
+      toast.success(`ein Impfung wurde erfolgreich erstellt`, {
+        style: {
+          border: "1px solid green",
+          padding: "16px",
+          color: "#09ff00",
+        },
+      });
+      reset();
     } catch (error) {
-      console.log(`error ${error}`);
+      toast.remove();
+      toast.error(`Fehlerhaft`, {
+        style: {
+          border: "1px solid red",
+          padding: "16px",
+          color: "#ff0000",
+        },
+      });
     }
   };
 

@@ -36,8 +36,6 @@ const Arztbrief = (props) => {
     });
   }
 
-  console.log(arztBrief);
-
   return (
     <WithSidebar>
       <Sidebar menus={getSidebarMenus({ role: userRole })} />

@@ -156,8 +156,8 @@ const RaumTermin = ({ data }) => {
 
   kh = getRaumKrankenhaus({ raumId: data.raum });
 
-  if (kh) {
-    console.log(data);
+  if (!kh) {
+    return <div>Loading...</div>;
   }
 
   return (

@@ -145,7 +145,6 @@ const Employee = (props) => {
 
   const handleAction = (e, data) => {
     if (data.role === "Patient") {
-      console.log(e, data);
       Router.push(`/patient/${data.id}`);
     } else {
       setToggle(true);
@@ -154,8 +153,6 @@ const Employee = (props) => {
   };
 
   const handleDelete = async () => {
-    console.log(staging);
-
     if (staging.role === "Arzt") {
       toast((t) => <LoadingToast text="Arzt wird gelöscht..." />);
 
@@ -177,7 +174,6 @@ const Employee = (props) => {
           window.location.reload(true);
         }
       } catch (error) {
-        console.log(error);
         toast.remove();
         toast.error(`Fehlerhaft: Vorgang abgebrochen`, {
           style: {
@@ -208,7 +204,6 @@ const Employee = (props) => {
           window.location.reload(true);
         }
       } catch (error) {
-        console.log(error);
         toast.remove();
         toast.error(`Fehlerhaft: Vorgang abgebrochen`, {
           style: {

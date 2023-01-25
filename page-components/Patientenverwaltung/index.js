@@ -65,7 +65,6 @@ export const PatientenVerwaltung = ({
         <div className="flex flex-col lg:gap-x-4 lg:flex-row">
           {stationäreAufnahme?.length > 0 &&
             stationäreAufnahme.map((data, index) => {
-              console.log(data);
               return (
                 <div
                   className="max-w-lg p-4 my-4 space-y-1 bg-gray-300 border rounded"
@@ -141,8 +140,8 @@ const LBesuch = ({ data }) => {
 
   kh = getRaumKrankenhaus({ raumId: data.raum });
 
-  if (kh) {
-    console.log(data);
+  if (!kh) {
+    return <div>Loading...</div>;
   }
 
   return (

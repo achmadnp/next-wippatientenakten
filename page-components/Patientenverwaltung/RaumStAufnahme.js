@@ -5,8 +5,8 @@ const RaumStAufnahme = ({ data }) => {
 
   kh = getRaumKrankenhaus({ raumId: data.raumId });
 
-  if (kh) {
-    console.log(data);
+  if (!kh) {
+    return <div>Loading...</div>;
   }
 
   return (

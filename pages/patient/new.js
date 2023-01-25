@@ -706,54 +706,69 @@ const NewPatient = (props) => {
             </h1>
 
             <p>
-              Lorem Ipsum is simply dummy text of the printing and typesetting
-              industry. Lorem Ipsum has been the industry standard dummy text
-              ever since the 1500s, when an unknown printer took a galley of
-              type and scrambled it to make a type specimen book. It has
-              survived not only five centuries, but also the leap into
-              electronic typesetting, remaining essentially unchanged. It was
-              popularised in the 1960s with the release of Letraset sheets
-              containing Lorem Ipsum passages, and more recently with desktop
-              publishing software like Aldus PageMaker including versions of
-              Lorem Ipsum. Why do we use it? It is a long established fact that
-              a reader will be distracted by the readable content of a page when
-              looking at its layout. The point of using Lorem Ipsum is that it
-              has a more-or-less normal distribution of letters, as opposed to
-              using Content here, content here, making it look like readable
-              English. Many desktop publishing packages and web page editors now
-              use Lorem Ipsum as their default model text, and a search for
-              lorem ipsu will uncover many web sites still in their infancy.
-              Various versions have evolved over the years, sometimes by
-              accident, sometimes on purpose (injected humour and the like).
-              Where does it come from? Contrary to popular belief, Lorem Ipsum
-              is not simply random text. It has roots in a piece of classical
-              Latin literature from 45 BC, making it over 2000 years old.
-              Richard McClintock, a Latin professor at Hampden-Sydney College in
-              Virginia, looked up one of the more obscure Latin words,
-              consectetur, from a Lorem Ipsum passage, and going through the
-              cites of the word in classical literature, discovered the
-              undoubtable source. Lorem Ipsum comes from sections 1.10.32 and
-              1.10.33 of de Finibus Bonorum et Malorum (The Extremes of Good and
-              Evil) by Cicero, written in 45 BC. This book is a treatise on the
-              theory of ethics, very popular during the Renaissance. The first
-              line of Lorem Ipsum, Lorem ipsum dolor sit amet.., comes from a
-              line in section 1.10.32. The standard chunk of Lorem Ipsum used
-              since the 1500s is reproduced below for those interested. Sections
-              1.10.32 and 1.10.33 from de Finibus Bonorum et Malorum by Cicero
-              are also reproduced in their exact original form, accompanied by
-              English versions from the 1914 translation by H. Rackham. Where
-              can I get some? There are many variations of passages of Lorem
-              Ipsum available, but the majority have suffered alteration in some
-              form, by injected humour, or randomised words which dont look even
-              slightly believable. If you are going to use a passage of Lorem
-              Ipsum, you need to be sure there isnt anything embarrassing hidden
-              in the middle of text. All the Lorem Ipsum generators on the
-              Internet tend to repeat predefined chunks as necessary, making
-              this the first true generator on the Internet. It uses a
-              dictionary of over 200 Latin words, combined with a handful of
-              model sentence structures, to generate Lorem Ipsum which looks
-              reasonable. The generated Lorem Ipsum is therefore always free
-              from repetition, injected humour, or non-characteristic words etc.
+              Bitte lesen Sie die folgenden, für jeden Besucher der Website
+              https://patientenakten.azurewebsites.net/ geltenden
+              Nutzungsbedingungen durch. Durch Nutzung dieser Website erklären
+              Sie konkludent Ihr Einverständnis mit diesen Nutzungsbedingungen.
+              Der Inhaber der Website behält sich das Recht vor, die
+              Informationen auf dieser Website jederzeit ohne vorherige
+              Ankündigung zu ändern, zu streichen oder zu ergänzen. 1. EPApp hat
+              eine Verfügbarkeit von 24 Stunden am Tag. Es kann jedoch
+              vorkommen, dass es aufgrund von Wartungen, die für das Systems
+              erforderlich sind, zu Unterbrechungen der Verfügbarkeit kommt.
+              Unterbrechungen der Verfügbarkeit können unter Anderem aufgrund
+              höherer Gewalt oder anderen, von EPApp nicht zu vertretenden
+              Ursachen, wie zum Beispiel Vorsatz oder grobe Fahrlässigkeit
+              vorkommen. 2. Gruppe 2 weist darauf hin: dass es technisch
+              unmöglich ist, die Webseite frei von Fehlern jedweder Art zur
+              Verfügung zu stellen und dass Gruppe 2 deshalb keinerlei
+              Verantwortung dafür übernimmt, dass Fehler zur zeitweisen
+              Abschaltung der Website führen können, dass die Verfügbarkeit
+              dieser Webseiten von außerhalb des Einflussbereichs von Gruppe 2
+              liegenden Bedingungen und Leistungen abhängig ist, wie z.B. den
+              Übertragungskapazitäten und Telefonverbindungen zwischen den
+              einzelnen Beteiligten. In diesen Bereich fallende Störungen haben
+              wir nicht zu verantworten. 1. Der Zugang zu einigen Diensten der
+              Website, setzt die Erstellung eines Kontos voraus. 2. Die
+              Erstellung eines Kontos ist nur voll geschäftsfähigen Personen
+              gestattet, denen das Anmeldeformular auf der Website
+              https://patientenakten.azurewebsites.net/ bereit gestellt wird. 3.
+              Der Nutzer verpflichtet sich dazu, keine falschen Angaben zu
+              seiner Person zu machen. Des Weiteren verpflichtet sich der Nutzer
+              dazu, seine Angaben regelmäßig zu kontrollieren, um die
+              Richtigkeit dieser zu gewährleisten. 4. Wenn Sie einen Dienst von
+              EPApp nutzen, sind Sie für die Sicherstellung der Vertraulichkeit
+              Ihres Kontos, Passworts und für die Beschränkung des Zugangs zu
+              Ihrem Computer und Ihren mobilen Geräten verantwortlich. Soweit
+              unter anwendbarem Recht zulässig, erklären Sie sich damit
+              einverstanden, für alle Aktivitäten verantwortlich zu sein, die
+              über Ihr Konto oder Passwort vorgenommen werden. Sie sollten alle
+              erforderlichen Schritte unternehmen, um sicherzustellen, dass Ihr
+              Passwort geheim gehalten und sicher aufbewahrt wird und Sie
+              sollten uns unverzüglich informieren, wenn Sie Anlass zur Sorge
+              haben, dass ein Dritter Kenntnis von Ihrem Passwort erlangt hat
+              oder das Passwort unautorisiert genutzt wird oder dies
+              wahrscheinlich ist. Sie sind dafür verantwortlich,
+              sicherzustellen, dass Ihre Angaben an uns korrekt und vollständig
+              sind und dass Sie uns von jeglichen Änderungen hinsichtlich der
+              von Ihnen gegebenen Informationen in Kenntnis setzen. Sie können
+              einige der Informationen, die Sie uns gegeben haben, auf unserer
+              Website einsehen und aktualisieren. 5. Der Nutzer kann seinen
+              Benutzernamen nachträglich nicht ändern. 6. Sie dürfen einen
+              Dienst von EPApp nicht in einer Weise verwenden, die dazu geeignet
+              ist, die Dienste oder den Zugang von EPApp zu unterbrechen, zu
+              beschädigen oder in sonstiger Art zu beeinträchtigen. 7. Des
+              Weiteren dürfen Sie die Dienste von EPApp nicht für betrügerische
+              oder in Verbindung mit einer Straftat, rechtswidrigen Aktivitäten,
+              Belästigungen oder Unannehmlichkeiten verwenden. 8. Wir behalten
+              uns das Recht vor, Ihnen die Dienste auf der Website
+              vorzuenthalten oder Mitgliedskonten zu schließen. Das gilt
+              insbesondere für den Fall, dass Sie gegen anwendbares Recht,
+              vertragliche Vereinbarungen oder unsere Richtlinien verstoßen. 9.
+              Die Nutzer dieser Website können ihr Konto jederzeit löschen,
+              indem Sie eine entsprechende Nachricht über das Kontaktformular
+              abschicken. Das Konto des Nutzers wird unverzüglich gelöscht,
+              sobald der Nutzer das Formular ausgefüllt und abgeschickt hat.
             </p>
 
             <div className="my-10">

@@ -78,8 +78,8 @@ export const AufenthaltComponentPage = () => {
         body: {
           patientId: selectedPatient.pid,
           raumId: selectedKH.rid,
-          aufnahmezeitpunkt: startDate,
-          entlassungszeitraum: finishDate,
+          aufnahmezeitpunkt: startDate.toISOString(),
+          entlassungszeitraum: finishDate.toISOString(),
           hinweise: hinweise,
         },
       });

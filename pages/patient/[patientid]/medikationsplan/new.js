@@ -9,6 +9,9 @@ import { getSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { fetcher, postReq } from "lib/fetcher";
+import Router from "next/router";
+import { toast } from "react-hot-toast";
+import { LoadingToast } from "@/page-components/Toast/Toast";
 const baseURL = "https://wippatientenakte.azure-api.net";
 
 const AddNewMedikation = (props) => {
@@ -52,26 +55,48 @@ const AddNewMedikation = (props) => {
           );
   }
 
+  const reset = () => {
+    setMedQuery("");
+    setStaerke("");
+    setSelectedMed("");
+    setHinweise("");
+    setGrund("");
+  };
+
   const handleBestaetigen = async () => {
+    toast((t) => <LoadingToast text="Medikament wird hinzugefügt..." />);
     try {
       const post = await postReq({
         url: `${baseURL}/s2/medikationsplane`,
         body: {
           patientId: props.pid.patientid,
           medikamentId: selectedMed.mid,
-          von: startDate,
-          bis: finishDate,
+          von: startDate.toISOString(),
+          bis: finishDate.toISOString(),
           staerke: staerke,
           hinweise: hinweise,
           grund: grund,
           arzt: session.id,
         },
       });
-      console.log(`post ${post}`);
-      if (post) {
-      }
+      toast.remove();
+      toast.success(`ein Medikament wurde erfolgreich erstellt`, {
+        style: {
+          border: "1px solid green",
+          padding: "16px",
+          color: "#09ff00",
+        },
+      });
+      reset();
     } catch (error) {
-      console.log(`error ${error}`);
+      toast.remove();
+      toast.error(`Fehlerhaft`, {
+        style: {
+          border: "1px solid red",
+          padding: "16px",
+          color: "#ff0000",
+        },
+      });
     }
   };
 
@@ -163,8 +188,8 @@ const AddNewMedikation = (props) => {
               </label>
 
               <DatePicker
-                selected={startDate}
-                onChange={(date) => setStartDate(date)}
+                selected={finishDate}
+                onChange={(date) => setFinishDate(date)}
                 className="block w-full max-w-lg p-2 my-auto font-medium leading-normal text-gray-700 bg-white border border-gray-300 rounded-md shadow-md appearance-none"
               ></DatePicker>
             </div>

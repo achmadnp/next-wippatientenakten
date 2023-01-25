@@ -79,8 +79,6 @@ const NewEmployee = () => {
   const handleSubmit = async () => {
     if (role === "arzt") {
       toast((t) => <LoadingToast text="Arztkonto wird erstellt..." />);
-      console.log(data);
-      console.log(selectedKh.khid, selectedFB.fbid);
 
       try {
         const arzt = await postReq({
@@ -114,8 +112,6 @@ const NewEmployee = () => {
       } catch (error) {}
     } else if (role === "assistent") {
       toast((t) => <LoadingToast text="Assistentkonto wird erstellt..." />);
-      console.log(data);
-      console.log(selectedKh.khid, selectedFB.fbid);
 
       try {
         const assistent = await postReq({
@@ -173,8 +169,6 @@ const NewEmployee = () => {
       jobtitel: "",
     });
   };
-
-  console.log(khData);
 
   return (
     <div className="w-full min-h-screen col-span-4 pt-8 md:col-span-5 2xl:col-span-6 bg-bg-primary">
